@@ -66,8 +66,6 @@ def glob(patterns):
       qtype = 'term'
     scroll = '2m'
     size = 1000
-    scroll = 2
-    size = 10
 
     body = { 'query': { 'bool': { 'must': [ { qtype: { 'path': pattern } }, { 'term': { 'leaf': 'true' } } ] } } }
     result = es.search(index=index, doc_type='path', scroll=scroll, size=size, body=body)
@@ -139,7 +137,6 @@ if len(argv):
      and rollup=%s
      and path in ('%s')
      and time >= %d and time <= %d
-order by time asc
    limit %d""" % (tenant, period, rollup, "','".join(paths), since, until, limit)
     if verbose:
       print 'Best rollup:\n%s' % [period, rollup]
@@ -150,7 +147,7 @@ order by time asc
     session = cluster.connect(keyspace)
     session.row_factory = dict_factory
     rows = session.execute(cql)
-    for row in rows:
+    for row in sorted(rows, key=lambda x: x['time']):
       print '%s %s %s' % (strftime('%Y-%m-%d %H:%M:%S', localtime(row['time'])), row['path'], row['data'])
   else:
     print 'No metrics matching "%s" found in Elasticsearch!' % '", "'.join(argv)
