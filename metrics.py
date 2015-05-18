@@ -56,12 +56,11 @@ def glob(patterns):
       pattern = string.replace(pattern, '*', '[^.]*')
       pattern = string.replace(pattern, '?', '.')
       while True:
-        m = re.search('\{(.*)\}', pattern)
+        m = re.search('\{([^}]*)\}', pattern)
         if m is None:
           break
         inside = string.replace(m.group(1), ',', '|')
         pattern = string.replace(pattern, m.group(0), '(%s)' % inside)
-        break
     else:
       qtype = 'term'
     scroll = '2m'
